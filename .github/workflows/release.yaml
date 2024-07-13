@@ -5,10 +5,27 @@ on:
       - '*'
 
 jobs:
-  build:
+  build_and_upload:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - goarch: amd64
+            goos: linux
+            filename: garminDataSummary_amd64_linux
+          - goarch: arm
+            goos: linux
+            filename: garminDataSummary_arm_linux
+          - goarch: amd64
+            goos: darwin
+            filename: garminDataSummary_amd64_macOS
+          - goarch: arm64
+            goos: darwin
+            filename: garminDataSummary_arm64_macOS
+          - goarch: amd64
+            goos: windows
+            filename: garminDataSummary_amd64_windows.exe
     steps:
-
       - name: Set up Go 1.x
         uses: actions/setup-go@v5
         with:
@@ -21,24 +38,24 @@ jobs:
         run: go mod download
 
       - name: Build
-        run: GOOS=linux GOARCH=amd64 go build -v -o garminDataSummary
+        run: GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -ldflags "-s -w" -trimpath -gcflags '-B -l' -v -o ./${{ matrix.filename }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: garminDataSummary
-          path: ./garminDataSummary
+          name: ${{ matrix.filename }}
+          path: ./${{ matrix.filename }}
 
   release:
-    needs: build
+    needs: build_and_upload
     runs-on: ubuntu-latest
     steps:
-      - name: Download artifact
+      - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: garminDataSummary
+          path: dist/
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ./garminDataSummary
+          files: dist/**/garminDataSummary*
