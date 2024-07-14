@@ -2,6 +2,7 @@ package input
 
 import (
 	"activitesSummary/pkg/activity"
+	"activitesSummary/pkg/args"
 	"activitesSummary/pkg/constants"
 	"activitesSummary/pkg/data"
 	"activitesSummary/pkg/service"
@@ -42,7 +43,7 @@ func ReadActivitiesFromFile(file *os.File) ([]string, error) {
 	return uniqueActivities, nil
 }
 
-func ParseRecords(records [][]string, activitiesMap map[string]bool) ([]activity.Activity, time.Time, time.Time, map[string]data.LongestData, error) {
+func ParseRecords(records [][]string, activitiesMap map[string]bool, args args.Args) ([]activity.Activity, time.Time, time.Time, map[string]data.LongestData, error) {
 	var activities []activity.Activity
 	longestActivities := make(map[string]data.LongestData)
 	var earliestDate, latestDate time.Time
@@ -57,12 +58,20 @@ func ParseRecords(records [][]string, activitiesMap map[string]bool) ([]activity
 				continue
 			}
 
+			if args.StartDate != nil && dateTime.Before(*args.StartDate) {
+				continue
+			}
+
+			if args.EndDate != nil && dateTime.After(*args.EndDate) {
+				continue
+			}
+
 			// Update earliest and latest dates
 			if earliestDate.IsZero() || date.Before(earliestDate) {
-				earliestDate = date
+				earliestDate = dateTime
 			}
 			if latestDate.IsZero() || date.After(latestDate) {
-				latestDate = date
+				latestDate = dateTime
 			}
 
 			distance := service.ParseFloatData(record[4])

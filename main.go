@@ -64,7 +64,7 @@ func main() {
 		earliestDate,
 		latestDate,
 		longestActivities,
-		err := input.ParseRecords(records, activitiesMap)
+		err := input.ParseRecords(records, activitiesMap, inputArguments)
 
 	if err != nil {
 		fmt.Println("Error parsing records:", err)

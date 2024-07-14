@@ -29,7 +29,10 @@ The command can give you the list of activity types available in the file with t
 The `activities` flag can take a comma-separated list of activities or "All" to process all activities. For
 example, `-activities="Run,Treadmill Running"` or `-activities="All"`.
 
-By default the output is rendered as tables but can also be set to json with `-output=json`
+By default, the output is rendered as tables but can also be set to json with `-output=json`
+
+There are optional `startDate` and `endDate` arguments. They can be in the datetime format `2023-02-01T15:04:05` or just the date format `2023-02-01`.
+If just setting the date it will take the earliest on the start date and the latest on the end date.
 
 ### Examples
 
@@ -83,6 +86,43 @@ go run main.go -input ./testInput/activities.csv -activity "Running,Cycling,Trea
   Cycling           | August 15, 2022  |    36.95 | 02:30:53 |   14.69 |   889.00  
 
 Activities range from June 26, 2022 to July 12, 2024 a total of 747 days between those dates
+```
+
+> Add date filters
+
+```shell
+go run main.go -file ./testInput/activities.csv  -activity "Running,Treadmill Running"  -startDate="2023-02-01T15:04:05" -endDate="2024-03-01"
+
+
+ --- Summary 
+
+              STATISTIC              |  VALUE    
+-------------------------------------+-----------
+  Total Activities                   |       71  
+  Total Distance (km)                |   294.66  
+  Total Time                         | 28:51:07  
+  Total Calories                     |    22706  
+                                     |           
+  Average Distance per Activity (km) |     4.15  
+  Average Time per Activity          | 00:24:23  
+  Average Speed (km/h)               |    10.21  
+  Average Calories per Activity      |   319.80  
+                                     |           
+  Average Daily Activities           |     0.19  
+  Average Daily Distance (km)        |     0.79  
+  Average Daily Time (h)             | 00:04:37  
+  Average Daily Calories             |    60.55  
+
+ --- Longest Activities 
+
+      ACTIVITY      |        DATE         | DISTANCE | DURATION | AVERAGE | CALORIES  
+--------------------+---------------------+----------+----------+---------+-----------
+  Running           | 2023-05-01 00:00:00 |    12.01 | 01:09:45 |   10.33 |   941.00  
+  Treadmill Running | 2023-07-14 00:00:00 |    12.00 | 01:16:35 |    9.40 |  1012.00  
+
+Activities range from 2023-02-12 12:16:50 to 2024-02-22 12:42:47.
+A total of 375 days between those dates, 70 of which had activities
+You are active 18.67% of days%              
 ```
 
 > Output as json for all activities
