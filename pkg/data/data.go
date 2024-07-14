@@ -24,12 +24,16 @@ func PopulateData(
 	totalActivities := len(activities)
 	var totalDistance float64
 	var totalCalories float64
+	var totalAverageHR int64
+	var totalMaxHR int64
 	var totalDuration time.Duration
 	uniqueDates := make(map[string]bool)
 	for _, activity := range activities {
 		totalDistance += activity.Distance
-		totalDuration += activity.Duration
+		totalDuration += activity.Time
 		totalCalories += activity.Calories
+		totalMaxHR += activity.MaxHR
+		totalAverageHR += activity.AvgHR
 		dateString := activity.Date.Format(constants.DateFormat)
 		uniqueDates[dateString] = true
 	}
@@ -41,15 +45,17 @@ func PopulateData(
 		durationDenominator = 1
 	}
 
-	caloriesDenominator := float64(totalActivities)
-	if caloriesDenominator == 0 {
-		caloriesDenominator = 1
+	floatDenominator := float64(totalActivities)
+	if floatDenominator == 0 {
+		floatDenominator = 1
 	}
 
 	avgDistance := totalDistance / float64(totalActivities)
 	avgSpeed := totalDistance / totalDuration.Hours()
 	avgDuration := totalDuration / durationDenominator
-	avgCalories := totalCalories / caloriesDenominator
+	avgCalories := totalCalories / floatDenominator
+	avgHr := float64(totalAverageHR) / floatDenominator
+	avgMaxHr := float64(totalMaxHR) / floatDenominator
 
 	days := latestDate.Sub(earliestDate).Hours() / 24
 
@@ -67,12 +73,14 @@ func PopulateData(
 		Summary: SummaryData{
 			TotalActivities:        totalActivities,
 			TotalDistance:          totalDistance,
-			TotalDuration:          totalDuration,
+			TotalTime:              totalDuration,
 			TotalCalories:          totalCalories,
 			AverageDistance:        avgDistance,
 			AverageCalories:        avgCalories,
 			AverageSpeed:           avgSpeed,
-			AverageDuration:        avgDuration,
+			AverageTime:            avgDuration,
+			AverageHR:              avgHr,
+			AverageMaxHR:           avgMaxHr,
 			AverageDailyDistance:   dailyAverageDistance,
 			AverageDailyCalories:   dailyAverageCalories,
 			AverageDailyTime:       dailyAverageTime,

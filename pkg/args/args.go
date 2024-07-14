@@ -12,6 +12,7 @@ const DefaultOutput = "text"
 type Args struct {
 	FileName           string
 	ShowActivities     bool
+	Favorites          bool
 	SelectedActivities string
 	Output             string
 	StartDate          *time.Time
@@ -24,6 +25,9 @@ func ParseArgs() Args {
 
 	var showActivities bool
 	flag.BoolVar(&showActivities, "showActivities", false, "show available activities in input")
+
+	var favorites bool
+	flag.BoolVar(&favorites, "favorites", false, "get data only for favorite activities")
 
 	var selectedActivities string
 	flag.StringVar(&selectedActivities, "activity", DefaultSelectedActivities, "comma-separated list of activities")
@@ -50,6 +54,7 @@ func ParseArgs() Args {
 		Output:             output,
 		StartDate:          startDate,
 		EndDate:            endDate,
+		Favorites:          favorites,
 	}
 }
 

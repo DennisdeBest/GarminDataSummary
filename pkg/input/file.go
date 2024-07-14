@@ -9,6 +9,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -48,9 +49,9 @@ func ParseRecords(records [][]string, activitiesMap map[string]bool, args args.A
 	longestActivities := make(map[string]data.LongestData)
 	var earliestDate, latestDate time.Time
 	for _, record := range records[1:] { // Skip header row
-		if activitiesMap["All"] || activitiesMap[record[0]] {
-			currentActivityType := record[0]
-			dateTime, err := time.Parse(constants.DateTimeFormat, record[1])                           // Parse as date-time
+		if activitiesMap["All"] || activitiesMap[record[CsvColumnIndex["ActivityType"]]] {
+			currentActivityType := record[CsvColumnIndex["ActivityType"]]
+			dateTime, err := time.Parse(constants.DateTimeFormat, record[CsvColumnIndex["Date"]])      // Parse as date-time
 			date := time.Date(dateTime.Year(), dateTime.Month(), dateTime.Day(), 0, 0, 0, 0, time.UTC) // Keep only date part
 
 			if err != nil {
@@ -66,6 +67,11 @@ func ParseRecords(records [][]string, activitiesMap map[string]bool, args args.A
 				continue
 			}
 
+			favorite, _ := strconv.ParseBool(record[CsvColumnIndex["Favorite"]])
+			if args.Favorites == true && favorite == false {
+				continue
+			}
+
 			// Update earliest and latest dates
 			if earliestDate.IsZero() || date.Before(earliestDate) {
 				earliestDate = dateTime
@@ -74,27 +80,33 @@ func ParseRecords(records [][]string, activitiesMap map[string]bool, args args.A
 				latestDate = dateTime
 			}
 
-			distance := service.ParseFloatData(record[4])
+			distance := service.ParseFloatData(record[CsvColumnIndex["Distance"]])
 
 			//Some activities record in meters, not kilometers
 			if currentActivityType == constants.PoolSwim {
 				distance = distance / constants.SwimmingFactor
 			}
 
-			duration, err := service.ParseDuration(record[6])
+			time, err := service.ParseDuration(record[CsvColumnIndex["Time"]])
 			if err != nil {
 				fmt.Println("Error parsing duration:", err)
 				continue
 			}
 
-			calories := service.ParseFloatData(record[5])
+			calories := service.ParseFloatData(record[CsvColumnIndex["Calories"]])
+
+			avgHR, _ := strconv.ParseInt(record[CsvColumnIndex["AvgHR"]], 10, 64)
+			maxHR, _ := strconv.ParseInt(record[CsvColumnIndex["MaxHR"]], 10, 64)
 
 			activity := activity.Activity{
-				Type:     record[0],
-				Distance: distance,
-				Duration: duration,
-				Date:     date,
-				Calories: calories,
+				ActivityType: currentActivityType,
+				Distance:     distance,
+				Time:         time,
+				Date:         date,
+				Calories:     calories,
+				Favorite:     favorite,
+				AvgHR:        avgHR,
+				MaxHR:        maxHR,
 			}
 			activities = append(activities, activity)
 

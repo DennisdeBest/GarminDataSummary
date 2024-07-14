@@ -3,9 +3,50 @@ package activity
 import "time"
 
 type Activity struct {
-	Type     string
-	Distance float64
-	Duration time.Duration
-	Date     time.Time
-	Calories float64
+	ActivityType           string
+	Date                   time.Time
+	Favorite               bool
+	Title                  string
+	Distance               float64
+	Calories               float64
+	Time                   time.Duration
+	AvgHR                  int64
+	MaxHR                  int64
+	AvgRunCadence          float64
+	MaxRunCadence          float64
+	AvgPace                float64
+	BestPace               float64
+	TotalAscent            float64
+	TotalDescent           float64
+	AvgStrideLength        float64
+	AvgVerticalRatio       float64
+	AvgVerticalOscillation float64
+	AvgGroundContactTime   float64
+	TrainingStressScore    float64
+	AvgPower               float64
+	Grit                   float64
+	Flow                   float64
+	TotalStrokes           float64
+	AvgSwolf               float64
+	AvgStrokeRate          float64
+	TotalReps              float64
+	DiveTime               float64
+	MinTemp                float64
+	SurfaceInterval        float64
+	Decompression          float64
+	BestLapTime            time.Time
+	NumberofLaps           float64
+	MaxTemp                float64
+	AvgResp                float64
+	MinResp                float64
+	MaxResp                float64
+	StressChange           float64
+	StressStart            float64
+	StressEnd              float64
+	AvgStress              float64
+	MaxStress              float64
+	MovingTime             float64
+	ElapsedTime            float64
+	MinElevation           float64
+	MaxElevation           float64
 }

@@ -6,23 +6,27 @@ import (
 )
 
 type LongestData struct {
-	Type         string
+	ActivityType string
 	Date         time.Time
 	Distance     float64
 	AverageSpeed float64
-	Duration     time.Duration
+	Time         time.Duration
 	Calories     float64
+	AvgHR        int64
+	MaxHR        int64
 }
 
 func GetLongestActivities(currentActivity activity.Activity, longestActivities map[string]LongestData) map[string]LongestData {
-	if longestActivity, exists := longestActivities[currentActivity.Type]; !exists || currentActivity.Distance > longestActivity.Distance {
-		longestActivities[currentActivity.Type] = LongestData{
-			Type:         currentActivity.Type,
-			Duration:     currentActivity.Duration,
+	if longestActivity, exists := longestActivities[currentActivity.ActivityType]; !exists || currentActivity.Distance > longestActivity.Distance {
+		longestActivities[currentActivity.ActivityType] = LongestData{
+			ActivityType: currentActivity.ActivityType,
+			Time:         currentActivity.Time,
 			Date:         currentActivity.Date,
 			Distance:     currentActivity.Distance,
 			Calories:     currentActivity.Calories,
-			AverageSpeed: currentActivity.Distance / currentActivity.Duration.Hours(),
+			AverageSpeed: currentActivity.Distance / currentActivity.Time.Hours(),
+			AvgHR:        currentActivity.AvgHR,
+			MaxHR:        currentActivity.MaxHR,
 		}
 	}
 	return longestActivities

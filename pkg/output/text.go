@@ -19,13 +19,15 @@ func PrintText(data *data.Data) {
 	table.AppendBulk([][]string{
 		{"Total Activities", fmt.Sprintf("%d", data.Summary.TotalActivities)},
 		{"Total Distance (km)", fmt.Sprintf("%.2f", data.Summary.TotalDistance)},
-		{"Total Time", service.FormatDuration(data.Summary.TotalDuration)},
+		{"Total Time", service.FormatDuration(data.Summary.TotalTime)},
 		{"Total Calories", fmt.Sprintf("%.0f", data.Summary.TotalCalories)},
 		{"", ""},
 		{"Average Distance per Activity (km)", fmt.Sprintf("%.2f", data.Summary.AverageDistance)},
-		{"Average Time per Activity", service.FormatDuration(data.Summary.AverageDuration)},
+		{"Average Time per Activity", service.FormatDuration(data.Summary.AverageTime)},
 		{"Average Speed (km/h)", fmt.Sprintf("%.2f", data.Summary.AverageSpeed)},
 		{"Average Calories per Activity", fmt.Sprintf("%.2f", data.Summary.AverageCalories)},
+		{"Average HR per Activity", fmt.Sprintf("%.2f", data.Summary.AverageHR)},
+		{"Average Max HR per Activity", fmt.Sprintf("%.2f", data.Summary.AverageMaxHR)},
 		{"", ""},
 		{"Average Daily Activities", fmt.Sprintf("%.2f", data.Summary.AverageDailyActivities)},
 		{"Average Daily Distance (km)", fmt.Sprintf("%.2f", data.Summary.AverageDailyDistance)},
@@ -38,19 +40,21 @@ func PrintText(data *data.Data) {
 	fmt.Printf("\n --- Longest Activities \n\n")
 
 	longestActivitiesTable := tablewriter.NewWriter(os.Stdout)
-	longestActivitiesTable.SetHeader([]string{"Activity", "Date", "Distance", "Duration", "Average", "Calories"})
+	longestActivitiesTable.SetHeader([]string{"Activity", "Date", "Distance", "Duration", "Average", "Calories", "Average HR", "Max HR"})
 	longestActivitiesTable.SetBorder(false)
 
 	for _, longActivity := range data.Longest {
-		longActivityAvgSpeed := longActivity.Distance / longActivity.Duration.Hours()
+		longActivityAvgSpeed := longActivity.Distance / longActivity.Time.Hours()
 		longestActivitiesTable.AppendBulk([][]string{
 			{
-				longActivity.Type,
+				longActivity.ActivityType,
 				longActivity.Date.Format(constants.DateTimeFormat),
 				fmt.Sprintf("%.2f", longActivity.Distance),
-				service.FormatDuration(longActivity.Duration),
+				service.FormatDuration(longActivity.Time),
 				fmt.Sprintf("%.2f", longActivityAvgSpeed),
-				fmt.Sprintf("%.2f", longActivity.Calories),
+				fmt.Sprintf("%.0f", longActivity.Calories),
+				fmt.Sprintf("%d", longActivity.AvgHR),
+				fmt.Sprintf("%d", longActivity.MaxHR),
 			},
 		})
 	}

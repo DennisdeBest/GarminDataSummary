@@ -34,6 +34,7 @@ By default, the output is rendered as tables but can also be set to json with `-
 There are optional `startDate` and `endDate` arguments. They can be in the datetime format `2023-02-01T15:04:05` or just the date format `2023-02-01`.
 If just setting the date it will take the earliest on the start date and the latest on the end date.
 
+Pass the `favorites` argument if you want it to only count the activities that are marked as favorites.
 ### Examples
 
 > List the available activities in the exported file
