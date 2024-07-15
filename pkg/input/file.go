@@ -48,6 +48,7 @@ func ParseRecords(records [][]string, activitiesMap map[string]bool, args args.A
 	var activities []activity.Activity
 	longestActivities := make(map[string]data.LongestData)
 	var earliestDate, latestDate time.Time
+
 	for _, record := range records[1:] { // Skip header row
 		if activitiesMap["All"] || activitiesMap[record[CsvColumnIndex["ActivityType"]]] {
 			currentActivityType := record[CsvColumnIndex["ActivityType"]]
@@ -102,7 +103,7 @@ func ParseRecords(records [][]string, activitiesMap map[string]bool, args args.A
 				ActivityType: currentActivityType,
 				Distance:     distance,
 				Time:         time,
-				Date:         date,
+				Date:         dateTime,
 				Calories:     calories,
 				Favorite:     favorite,
 				AvgHR:        avgHR,

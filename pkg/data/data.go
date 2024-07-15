@@ -7,12 +7,13 @@ import (
 )
 
 type Data struct {
-	Summary      SummaryData
-	Longest      []LongestData
-	EarliestDate time.Time
-	LatestDate   time.Time
-	Days         int
-	ActivityDays int
+	Summary          SummaryData
+	Longest          []LongestData
+	SortedActivities map[string][]activity.Activity
+	EarliestDate     time.Time
+	LatestDate       time.Time
+	Days             int
+	ActivityDays     int
 }
 
 func PopulateData(
@@ -27,6 +28,7 @@ func PopulateData(
 	var totalAverageHR int64
 	var totalMaxHR int64
 	var totalDuration time.Duration
+	var sortedActivities = make(map[string][]activity.Activity)
 	uniqueDates := make(map[string]bool)
 	for _, activity := range activities {
 		totalDistance += activity.Distance
@@ -36,6 +38,7 @@ func PopulateData(
 		totalAverageHR += activity.AvgHR
 		dateString := activity.Date.Format(constants.DateFormat)
 		uniqueDates[dateString] = true
+		sortedActivities[activity.ActivityType] = append(sortedActivities[activity.ActivityType], activity)
 	}
 
 	numUniqueDays := len(uniqueDates)
@@ -86,11 +89,12 @@ func PopulateData(
 			AverageDailyTime:       dailyAverageTime,
 			AverageDailyActivities: dailyAverageActivities,
 		},
-		Longest:      longestDataSlice,
-		EarliestDate: earliestDate,
-		LatestDate:   latestDate,
-		Days:         int(latestDate.Sub(earliestDate).Hours() / 24),
-		ActivityDays: numUniqueDays,
+		Longest:          longestDataSlice,
+		SortedActivities: sortedActivities,
+		EarliestDate:     earliestDate,
+		LatestDate:       latestDate,
+		Days:             int(latestDate.Sub(earliestDate).Hours() / 24),
+		ActivityDays:     numUniqueDays,
 	}
 	return data
 }

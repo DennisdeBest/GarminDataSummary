@@ -74,9 +74,9 @@ func main() {
 	data := data.PopulateData(activities, earliestDate, latestDate, longestActivities)
 
 	if inputArguments.Output == "json" {
-		output.PrintJson(data)
+		output.PrintJson(data, inputArguments)
 	}
 
-	output.PrintText(data)
+	output.PrintText(data, inputArguments)
 
 }

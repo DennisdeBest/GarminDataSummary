@@ -13,6 +13,7 @@ type Args struct {
 	FileName           string
 	ShowActivities     bool
 	Favorites          bool
+	All                bool
 	SelectedActivities string
 	Output             string
 	StartDate          *time.Time
@@ -28,6 +29,9 @@ func ParseArgs() Args {
 
 	var favorites bool
 	flag.BoolVar(&favorites, "favorites", false, "get data only for favorite activities")
+
+	var all bool
+	flag.BoolVar(&all, "all", false, "show data for all selected activities")
 
 	var selectedActivities string
 	flag.StringVar(&selectedActivities, "activity", DefaultSelectedActivities, "comma-separated list of activities")
@@ -50,6 +54,7 @@ func ParseArgs() Args {
 	return Args{
 		FileName:           filename,
 		ShowActivities:     showActivities,
+		All:                all,
 		SelectedActivities: selectedActivities,
 		Output:             output,
 		StartDate:          startDate,
