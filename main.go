@@ -9,7 +9,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"strings"
 )
 
 func main() {
@@ -22,6 +21,17 @@ func main() {
 	}
 
 	if !(inputArguments.Output == "text" || inputArguments.Output == "json") {
+		flag.PrintDefaults()
+		os.Exit(1)
+	}
+
+	if !(inputArguments.AllSortBy == "" ||
+		inputArguments.AllSortBy == "AverageSpeed" ||
+		inputArguments.AllSortBy == "AverageHR" ||
+		inputArguments.AllSortBy == "MaxHR" ||
+		inputArguments.AllSortBy == "Calories" ||
+		inputArguments.AllSortBy == "Distance" ||
+		inputArguments.AllSortBy == "Time") {
 		flag.PrintDefaults()
 		os.Exit(1)
 	}
@@ -54,24 +64,18 @@ func main() {
 		return
 	}
 
-	activitiesList := strings.Split(inputArguments.SelectedActivities, ",")
-	activitiesMap := make(map[string]bool)
-	for _, activity := range activitiesList {
-		activitiesMap[activity] = true
-	}
-
 	activities,
 		earliestDate,
 		latestDate,
 		longestActivities,
-		err := input.ParseRecords(records, activitiesMap, inputArguments)
+		err := input.ParseRecords(records, inputArguments.SelectedActivities, inputArguments)
 
 	if err != nil {
 		fmt.Println("Error parsing records:", err)
 		return
 	}
 
-	data := data.PopulateData(activities, earliestDate, latestDate, longestActivities)
+	data := data.PopulateData(activities, earliestDate, latestDate, longestActivities, inputArguments)
 
 	if inputArguments.Output == "json" {
 		output.PrintJson(data, inputArguments)

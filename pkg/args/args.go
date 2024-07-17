@@ -3,6 +3,7 @@ package args
 import (
 	"flag"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -14,7 +15,9 @@ type Args struct {
 	ShowActivities     bool
 	Favorites          bool
 	All                bool
-	SelectedActivities string
+	AllSortBy          string
+	HideFields         map[string]bool
+	SelectedActivities map[string]bool
 	Output             string
 	StartDate          *time.Time
 	EndDate            *time.Time
@@ -36,8 +39,14 @@ func ParseArgs() Args {
 	var selectedActivities string
 	flag.StringVar(&selectedActivities, "activity", DefaultSelectedActivities, "comma-separated list of activities")
 
+	var allSortBy string
+	flag.StringVar(&allSortBy, "allSortBy", "", "Sort the all activities tables by a column [AverageSpeed, Distance, Time, AverageHR, MaxHR, Calories]")
+
+	var hideFields string
+	flag.StringVar(&hideFields, "hideFields", "", "Hide fields for the all activities tables [Title]")
+
 	var output string
-	flag.StringVar(&output, "output", DefaultOutput, "output destination (text or json)")
+	flag.StringVar(&output, "output", DefaultOutput, "output type (text or json)")
 
 	var (
 		startDateStr *string = flag.String("startDate", "", "start date/time in ISO 8601 format")
@@ -55,12 +64,24 @@ func ParseArgs() Args {
 		FileName:           filename,
 		ShowActivities:     showActivities,
 		All:                all,
-		SelectedActivities: selectedActivities,
+		SelectedActivities: mapCommaSeparatedValuesString(selectedActivities),
+		HideFields:         mapCommaSeparatedValuesString(hideFields),
 		Output:             output,
 		StartDate:          startDate,
 		EndDate:            endDate,
 		Favorites:          favorites,
+		AllSortBy:          allSortBy,
 	}
+}
+
+func mapCommaSeparatedValuesString(values string) map[string]bool {
+	list := strings.Split(values, ",")
+	output := make(map[string]bool)
+	for _, value := range list {
+		output[value] = true
+	}
+
+	return output
 }
 
 func parseDateTime(dateStr *string) *time.Time {

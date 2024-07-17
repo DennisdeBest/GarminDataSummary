@@ -95,19 +95,43 @@ func ParseRecords(records [][]string, activitiesMap map[string]bool, args args.A
 			}
 
 			calories := service.ParseFloatData(record[CsvColumnIndex["Calories"]])
+			avgStrideLength := service.ParseFloatData(record[CsvColumnIndex["AvgStrideLength"]])
 
 			avgHR, _ := strconv.ParseInt(record[CsvColumnIndex["AvgHR"]], 10, 64)
 			maxHR, _ := strconv.ParseInt(record[CsvColumnIndex["MaxHR"]], 10, 64)
 
+			avgRunCadence, _ := strconv.ParseInt(record[CsvColumnIndex["AvgRunCadence"]], 10, 64)
+			maxRunCadence, _ := strconv.ParseInt(record[CsvColumnIndex["MaxRunCadence"]], 10, 64)
+
+			avgPower, _ := strconv.ParseInt(record[CsvColumnIndex["AvgPower"]], 10, 64)
+
+			totalAscent, _ := strconv.ParseInt(record[CsvColumnIndex["TotalAscent"]], 10, 64)
+			totalDescent, _ := strconv.ParseInt(record[CsvColumnIndex["TotalDescent"]], 10, 64)
+
+			minElevation, _ := strconv.ParseInt(record[CsvColumnIndex["MinElevation"]], 10, 64)
+			maxElevation, _ := strconv.ParseInt(record[CsvColumnIndex["MaxElevation"]], 10, 64)
+
+			numberofLaps, _ := strconv.ParseInt(record[CsvColumnIndex["NumberofLaps"]], 10, 64)
+
 			activity := activity.Activity{
-				ActivityType: currentActivityType,
-				Distance:     distance,
-				Time:         time,
-				Date:         dateTime,
-				Calories:     calories,
-				Favorite:     favorite,
-				AvgHR:        avgHR,
-				MaxHR:        maxHR,
+				ActivityType:    currentActivityType,
+				Distance:        distance,
+				Time:            time,
+				Date:            dateTime,
+				Calories:        calories,
+				Favorite:        favorite,
+				AvgHR:           avgHR,
+				MaxHR:           maxHR,
+				AvgRunCadence:   avgRunCadence,
+				MaxRunCadence:   maxRunCadence,
+				TotalAscent:     totalAscent,
+				TotalDescent:    totalDescent,
+				MinElevation:    minElevation,
+				MaxElevation:    maxElevation,
+				AvgPower:        avgPower,
+				AvgStrideLength: avgStrideLength,
+				NumberofLaps:    numberofLaps,
+				Title:           record[CsvColumnIndex["Title"]],
 			}
 			activities = append(activities, activity)
 

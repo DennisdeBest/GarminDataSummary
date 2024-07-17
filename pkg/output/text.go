@@ -12,6 +12,7 @@ import (
 
 func PrintText(data *data.Data, args args.Args) {
 	fmt.Printf("\n --- Summary \n\n")
+	fmt.Printf("\n\t --- Total \n\n")
 
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetColWidth(40)
@@ -38,10 +39,39 @@ func PrintText(data *data.Data, args args.Args) {
 
 	table.Render()
 
+	for activityType, summary := range data.ActivityTypeSummaries {
+		fmt.Printf("\n\t --- %s \n\n", activityType)
+
+		table := tablewriter.NewWriter(os.Stdout)
+		table.SetColWidth(40)
+		table.SetHeader([]string{"Statistic", "Value"})
+		table.SetBorder(false)
+		table.AppendBulk([][]string{
+			{"Total Activities", fmt.Sprintf("%d", summary.TotalActivities)},
+			{"Total Distance (km)", fmt.Sprintf("%.2f", summary.TotalDistance)},
+			{"Total Time", service.FormatDuration(summary.TotalTime)},
+			{"Total Calories", fmt.Sprintf("%.0f", summary.TotalCalories)},
+			{"", ""},
+			{"Average Distance per Activity (km)", fmt.Sprintf("%.2f", summary.AverageDistance)},
+			{"Average Time per Activity", service.FormatDuration(summary.AverageTime)},
+			{"Average Speed (km/h)", fmt.Sprintf("%.2f", summary.AverageSpeed)},
+			{"Average Calories per Activity", fmt.Sprintf("%.2f", summary.AverageCalories)},
+			{"Average HR per Activity", fmt.Sprintf("%.2f", summary.AverageHR)},
+			{"Average Max HR per Activity", fmt.Sprintf("%.2f", summary.AverageMaxHR)},
+			{"", ""},
+			{"Average Daily Activities", fmt.Sprintf("%.2f", summary.AverageDailyActivities)},
+			{"Average Daily Distance (km)", fmt.Sprintf("%.2f", summary.AverageDailyDistance)},
+			{"Average Daily Time (h:m:s)", fmt.Sprintf("%s", service.FormatDuration(summary.AverageDailyTime))},
+			{"Average Daily Calories", fmt.Sprintf("%.2f", summary.AverageDailyCalories)},
+		})
+
+		table.Render()
+	}
+
 	fmt.Printf("\n --- Longest Activities \n\n")
 
 	longestActivitiesTable := tablewriter.NewWriter(os.Stdout)
-	longestActivitiesTable.SetHeader([]string{"Activity", "Date", "Distance", "Duration", "Average Speed (km/h)", "Calories", "Average HR", "Max HR"})
+	longestActivitiesTable.SetHeader([]string{"Activity", "Date", "Distance", "Time", "Average Speed (km/h)", "Calories", "Average HR", "Max HR"})
 	longestActivitiesTable.SetBorder(false)
 
 	for _, longActivity := range data.Longest {
@@ -63,24 +93,40 @@ func PrintText(data *data.Data, args args.Args) {
 
 	if args.All {
 		fmt.Printf("\n --- All Activities \n\n")
+
+		headers := []string{"Date"}
+
+		if !args.HideFields["Title"] {
+			headers = append(headers, "Title")
+		}
+
+		headers = append(headers, "Distance", "Time", "Average Speed (km/h)", "Calories", "Average HR", "Max HR")
+
 		for activityType, activities := range data.SortedActivities {
 			fmt.Printf("\n\t --- %s\n\n", activityType)
 			activityTypeAllTable := tablewriter.NewWriter(os.Stdout)
-			activityTypeAllTable.SetHeader([]string{"Date", "Distance", "Duration", "Average Speed (km/h)", "Calories", "Average HR", "Max HR"})
+			activityTypeAllTable.SetHeader(headers)
 			activityTypeAllTable.SetBorder(false)
 			for _, activity := range activities {
 				activityAvgSpeed := activity.Distance / activity.Time.Hours()
-				activityTypeAllTable.AppendBulk([][]string{
-					{
-						activity.Date.Format(constants.DateTimeFormat),
-						fmt.Sprintf("%.2f", activity.Distance),
-						service.FormatDuration(activity.Time),
-						fmt.Sprintf("%.2f", activityAvgSpeed),
-						fmt.Sprintf("%.0f", activity.Calories),
-						fmt.Sprintf("%d", activity.AvgHR),
-						fmt.Sprintf("%d", activity.MaxHR),
-					},
-				})
+
+				row := []string{activity.Date.Format(constants.DateTimeFormat)}
+
+				if !args.HideFields["Title"] {
+					row = append(row, activity.Title)
+				}
+
+				row = append(
+					row,
+					fmt.Sprintf("%.2f", activity.Distance),
+					service.FormatDuration(activity.Time),
+					fmt.Sprintf("%.2f", activityAvgSpeed),
+					fmt.Sprintf("%.0f", activity.Calories),
+					fmt.Sprintf("%d", activity.AvgHR),
+					fmt.Sprintf("%d", activity.MaxHR),
+				)
+
+				activityTypeAllTable.Append(row)
 			}
 			activityTypeAllTable.Render()
 		}
