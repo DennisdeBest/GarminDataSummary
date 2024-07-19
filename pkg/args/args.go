@@ -8,13 +8,14 @@ import (
 )
 
 const DefaultSelectedActivities = "All"
-const DefaultOutput = "text"
+const DefaultOutput = "cli"
 
 type Args struct {
 	FileName           string
 	ShowActivities     bool
 	Favorites          bool
 	All                bool
+	AllSummaries       bool
 	AllSortBy          string
 	HideFields         map[string]bool
 	SelectedActivities map[string]bool
@@ -36,8 +37,11 @@ func ParseArgs() Args {
 	var all bool
 	flag.BoolVar(&all, "all", false, "show data for all selected activities")
 
+	var allSummaries bool
+	flag.BoolVar(&allSummaries, "allSummaries", false, "show summaries for all selected data types")
+
 	var selectedActivities string
-	flag.StringVar(&selectedActivities, "activity", DefaultSelectedActivities, "comma-separated list of activities")
+	flag.StringVar(&selectedActivities, "activities", DefaultSelectedActivities, "comma-separated list of activities (ex \"Running,Treadmill Running, Cycling\") default: All")
 
 	var allSortBy string
 	flag.StringVar(&allSortBy, "allSortBy", "", "Sort the all activities tables by a column [AverageSpeed, Distance, Time, AverageHR, MaxHR, Calories]")
@@ -46,7 +50,7 @@ func ParseArgs() Args {
 	flag.StringVar(&hideFields, "hideFields", "", "Hide fields for the all activities tables [Title]")
 
 	var output string
-	flag.StringVar(&output, "output", DefaultOutput, "output type (text or json)")
+	flag.StringVar(&output, "output", DefaultOutput, "output type [cli, json] default: cli")
 
 	var (
 		startDateStr *string = flag.String("startDate", "", "start date/time in ISO 8601 format")
@@ -64,6 +68,7 @@ func ParseArgs() Args {
 		FileName:           filename,
 		ShowActivities:     showActivities,
 		All:                all,
+		AllSummaries:       allSummaries,
 		SelectedActivities: mapCommaSeparatedValuesString(selectedActivities),
 		HideFields:         mapCommaSeparatedValuesString(hideFields),
 		Output:             output,
@@ -78,6 +83,7 @@ func mapCommaSeparatedValuesString(values string) map[string]bool {
 	list := strings.Split(values, ",")
 	output := make(map[string]bool)
 	for _, value := range list {
+		value = strings.TrimSpace(value)
 		output[value] = true
 	}
 

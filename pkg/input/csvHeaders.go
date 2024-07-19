@@ -1,51 +1,72 @@
 package input
 
-var CsvColumnIndex = map[string]int{
-	"ActivityType":           0,
-	"Date":                   1,
-	"Favorite":               2,
-	"Title":                  3,
-	"Distance":               4,
-	"Calories":               5,
-	"Time":                   6,
-	"AvgHR":                  7,
-	"MaxHR":                  8,
-	"AvgRunCadence":          9,
-	"MaxRunCadence":          10,
-	"AvgPace":                11,
-	"BestPace":               12,
-	"TotalAscent":            13,
-	"TotalDescent":           14,
-	"AvgStrideLength":        15,
-	"AvgVerticalRatio":       16,
-	"AvgVerticalOscillation": 17,
-	"AvgGroundContactTime":   18,
-	"TrainingStressScore":    19,
-	"AvgPower":               20,
-	"MaxPower":               21,
-	"Grit":                   22,
-	"Flow":                   23,
-	"TotalStrokes":           24,
-	"AvgSwolf":               25,
-	"AvgStrokeRate":          26,
-	"TotalReps":              27,
-	"DiveTime":               28,
-	"MinTemp":                29,
-	"SurfaceInterval":        30,
-	"Decompression":          31,
-	"BestLapTime":            32,
-	"NumberofLaps":           33,
-	"MaxTemp":                34,
-	"AvgResp":                35,
-	"MinResp":                36,
-	"MaxResp":                37,
-	"StressChange":           38,
-	"StressStart":            39,
-	"StressEnd":              40,
-	"AvgStress":              41,
-	"MaxStress":              42,
-	"MovingTime":             43,
-	"ElapsedTime":            44,
-	"MinElevation":           45,
-	"MaxElevation":           46,
+import (
+	"encoding/csv"
+	"strings"
+)
+
+// Map the adapted names to actual CSV header names.
+var csvHeaderNames = map[string]string{
+	"ActivityType":           "Activity Type",
+	"Date":                   "Date",
+	"Favorite":               "Favorite",
+	"Title":                  "Title",
+	"Distance":               "Distance",
+	"Calories":               "Calories",
+	"Time":                   "Time",
+	"AvgHR":                  "Avg HR",
+	"MaxHR":                  "Max HR",
+	"AvgRunCadence":          "Avg Run Cadence",
+	"MaxRunCadence":          "Max Run Cadence",
+	"AvgPace":                "Avg Pace",
+	"BestPace":               "Best Pace",
+	"TotalAscent":            "Total Ascent",
+	"TotalDescent":           "Total Descent",
+	"AvgStrideLength":        "Avg Stride Length",
+	"AvgVerticalRatio":       "Avg Vertical Ratio",
+	"AvgVerticalOscillation": "Avg Vertical Oscillation",
+	"AvgGroundContactTime":   "Avg Ground Contact Time",
+	"TrainingStressScore":    "Training Stress Score®",
+	"Grit":                   "Grit",
+	"Flow":                   "Flow",
+	"TotalStrokes":           "Total Strokes",
+	"AvgSwolf":               "Avg. Swolf",
+	"AvgStrokeRate":          "Avg Stroke Rate",
+	"TotalReps":              "Total Reps",
+	"Decompression":          "Decompression",
+	"BestLapTime":            "Best Lap Time",
+	"NumberofLaps":           "Number of Laps",
+	"MaxTemp":                "Max Temp",
+	"AvgResp":                "Avg Resp",
+	"MinResp":                "Min Resp",
+	"MaxResp":                "Max Resp",
+	"StressChange":           "Stress Change",
+	"StressStart":            "Stress Start",
+	"StressEnd":              "Stress End",
+	"AvgStress":              "Avg Stress",
+	"MaxStress":              "Max Stress",
+	"MovingTime":             "Moving Time",
+	"ElapsedTime":            "Elapsed Time",
+	"MinElevation":           "Min Elevation",
+	"MaxElevation":           "Max Elevation",
+}
+
+// GetCsvColumnIndex Get the column indexes for the header names
+func GetCsvColumnIndex(reader *csv.Reader) (map[string]int, error) {
+	headers, err := reader.Read()
+	if err != nil {
+		return nil, err
+	}
+
+	csvColumnIndex := make(map[string]int)
+	for i, header := range headers {
+		header = strings.Trim(header, " \t\n\r")
+		for adapted, actual := range csvHeaderNames {
+			if actual == header {
+				csvColumnIndex[adapted] = i
+				break
+			}
+		}
+	}
+	return csvColumnIndex, nil
 }

@@ -39,33 +39,36 @@ func PrintText(data *data.Data, args args.Args) {
 
 	table.Render()
 
-	for activityType, summary := range data.ActivityTypeSummaries {
-		fmt.Printf("\n\t --- %s \n\n", activityType)
+	if args.AllSummaries {
+		for activityType, summary := range data.ActivityTypeSummaries {
+			fmt.Printf("\n\t --- %s \n\n", activityType)
 
-		table := tablewriter.NewWriter(os.Stdout)
-		table.SetColWidth(40)
-		table.SetHeader([]string{"Statistic", "Value"})
-		table.SetBorder(false)
-		table.AppendBulk([][]string{
-			{"Total Activities", fmt.Sprintf("%d", summary.TotalActivities)},
-			{"Total Distance (km)", fmt.Sprintf("%.2f", summary.TotalDistance)},
-			{"Total Time", service.FormatDuration(summary.TotalTime)},
-			{"Total Calories", fmt.Sprintf("%.0f", summary.TotalCalories)},
-			{"", ""},
-			{"Average Distance per Activity (km)", fmt.Sprintf("%.2f", summary.AverageDistance)},
-			{"Average Time per Activity", service.FormatDuration(summary.AverageTime)},
-			{"Average Speed (km/h)", fmt.Sprintf("%.2f", summary.AverageSpeed)},
-			{"Average Calories per Activity", fmt.Sprintf("%.2f", summary.AverageCalories)},
-			{"Average HR per Activity", fmt.Sprintf("%.2f", summary.AverageHR)},
-			{"Average Max HR per Activity", fmt.Sprintf("%.2f", summary.AverageMaxHR)},
-			{"", ""},
-			{"Average Daily Activities", fmt.Sprintf("%.2f", summary.AverageDailyActivities)},
-			{"Average Daily Distance (km)", fmt.Sprintf("%.2f", summary.AverageDailyDistance)},
-			{"Average Daily Time (h:m:s)", fmt.Sprintf("%s", service.FormatDuration(summary.AverageDailyTime))},
-			{"Average Daily Calories", fmt.Sprintf("%.2f", summary.AverageDailyCalories)},
-		})
+			table := tablewriter.NewWriter(os.Stdout)
+			table.SetColWidth(40)
+			table.SetHeader([]string{"Statistic", "Value"})
+			table.SetBorder(false)
+			table.AppendBulk([][]string{
+				{"Total Activities", fmt.Sprintf("%d", summary.TotalActivities)},
+				{"Total Distance (km)", fmt.Sprintf("%.2f", summary.TotalDistance)},
+				{"Total Time", service.FormatDuration(summary.TotalTime)},
+				{"Total Calories", fmt.Sprintf("%.0f", summary.TotalCalories)},
+				{"", ""},
+				{"Average Distance per Activity (km)", fmt.Sprintf("%.2f", summary.AverageDistance)},
+				{"Average Time per Activity", service.FormatDuration(summary.AverageTime)},
+				{"Average Speed (km/h)", fmt.Sprintf("%.2f", summary.AverageSpeed)},
+				{"Average Calories per Activity", fmt.Sprintf("%.2f", summary.AverageCalories)},
+				{"Average HR per Activity", fmt.Sprintf("%.2f", summary.AverageHR)},
+				{"Average Max HR per Activity", fmt.Sprintf("%.2f", summary.AverageMaxHR)},
+				{"", ""},
+				{"Average Daily Activities", fmt.Sprintf("%.2f", summary.AverageDailyActivities)},
+				{"Average Daily Distance (km)", fmt.Sprintf("%.2f", summary.AverageDailyDistance)},
+				{"Average Daily Time (h:m:s)", fmt.Sprintf("%s", service.FormatDuration(summary.AverageDailyTime))},
+				{"Average Daily Calories", fmt.Sprintf("%.2f", summary.AverageDailyCalories)},
+			})
 
-		table.Render()
+			table.Render()
+		}
+
 	}
 
 	fmt.Printf("\n --- Longest Activities \n\n")

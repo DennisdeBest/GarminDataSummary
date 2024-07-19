@@ -8,20 +8,12 @@ import (
 	"activitesSummary/pkg/service"
 	"encoding/csv"
 	"fmt"
-	"os"
 	"strconv"
 	"time"
 )
 
-func ReadActivitiesFromFile(file *os.File) ([]string, error) {
-
-	reader := csv.NewReader(file)
+func ReadActivitiesFromFile(reader *csv.Reader) ([]string, error) {
 	reader.LazyQuotes = true
-
-	_, err := reader.Read() // Read and discard the header
-	if err != nil {
-		return nil, err
-	}
 
 	lines, err := reader.ReadAll()
 	if err != nil {
@@ -44,15 +36,17 @@ func ReadActivitiesFromFile(file *os.File) ([]string, error) {
 	return uniqueActivities, nil
 }
 
-func ParseRecords(records [][]string, activitiesMap map[string]bool, args args.Args) ([]activity.Activity, time.Time, time.Time, map[string]data.LongestData, error) {
+func ParseRecords(records [][]string, args args.Args, csvColumnIndex map[string]int) ([]activity.Activity, time.Time, time.Time, map[string]data.LongestData, error) {
 	var activities []activity.Activity
 	longestActivities := make(map[string]data.LongestData)
 	var earliestDate, latestDate time.Time
 
+	activitiesMap := args.SelectedActivities
+
 	for _, record := range records[1:] { // Skip header row
-		if activitiesMap["All"] || activitiesMap[record[CsvColumnIndex["ActivityType"]]] {
-			currentActivityType := record[CsvColumnIndex["ActivityType"]]
-			dateTime, err := time.Parse(constants.DateTimeFormat, record[CsvColumnIndex["Date"]])      // Parse as date-time
+		if activitiesMap["All"] || activitiesMap[record[csvColumnIndex["ActivityType"]]] {
+			currentActivityType := record[csvColumnIndex["ActivityType"]]
+			dateTime, err := time.Parse(constants.DateTimeFormat, record[csvColumnIndex["Date"]])      // Parse as date-time
 			date := time.Date(dateTime.Year(), dateTime.Month(), dateTime.Day(), 0, 0, 0, 0, time.UTC) // Keep only date part
 
 			if err != nil {
@@ -68,7 +62,7 @@ func ParseRecords(records [][]string, activitiesMap map[string]bool, args args.A
 				continue
 			}
 
-			favorite, _ := strconv.ParseBool(record[CsvColumnIndex["Favorite"]])
+			favorite, _ := strconv.ParseBool(record[csvColumnIndex["Favorite"]])
 			if args.Favorites == true && favorite == false {
 				continue
 			}
@@ -81,37 +75,40 @@ func ParseRecords(records [][]string, activitiesMap map[string]bool, args args.A
 				latestDate = dateTime
 			}
 
-			distance := service.ParseFloatData(record[CsvColumnIndex["Distance"]])
+			distance := service.ParseFloatData(record[csvColumnIndex["Distance"]])
 
 			//Some activities record in meters, not kilometers
 			if currentActivityType == constants.PoolSwim {
 				distance = distance / constants.SwimmingFactor
 			}
 
-			time, err := service.ParseDuration(record[CsvColumnIndex["Time"]])
+			time, err := service.ParseDuration(record[csvColumnIndex["Time"]])
 			if err != nil {
 				fmt.Println("Error parsing duration:", err)
 				continue
 			}
 
-			calories := service.ParseFloatData(record[CsvColumnIndex["Calories"]])
-			avgStrideLength := service.ParseFloatData(record[CsvColumnIndex["AvgStrideLength"]])
+			calories := service.ParseFloatData(record[csvColumnIndex["Calories"]])
+			avgStrideLength := service.ParseFloatData(record[csvColumnIndex["AvgStrideLength"]])
 
-			avgHR, _ := strconv.ParseInt(record[CsvColumnIndex["AvgHR"]], 10, 64)
-			maxHR, _ := strconv.ParseInt(record[CsvColumnIndex["MaxHR"]], 10, 64)
+			avgHR, _ := strconv.ParseInt(record[csvColumnIndex["AvgHR"]], 10, 64)
+			maxHR, _ := strconv.ParseInt(record[csvColumnIndex["MaxHR"]], 10, 64)
 
-			avgRunCadence, _ := strconv.ParseInt(record[CsvColumnIndex["AvgRunCadence"]], 10, 64)
-			maxRunCadence, _ := strconv.ParseInt(record[CsvColumnIndex["MaxRunCadence"]], 10, 64)
+			avgRunCadence, _ := strconv.ParseInt(record[csvColumnIndex["AvgRunCadence"]], 10, 64)
+			maxRunCadence, _ := strconv.ParseInt(record[csvColumnIndex["MaxRunCadence"]], 10, 64)
 
-			avgPower, _ := strconv.ParseInt(record[CsvColumnIndex["AvgPower"]], 10, 64)
+			avgPower, _ := strconv.ParseInt(record[csvColumnIndex["AvgPower"]], 10, 64)
 
-			totalAscent, _ := strconv.ParseInt(record[CsvColumnIndex["TotalAscent"]], 10, 64)
-			totalDescent, _ := strconv.ParseInt(record[CsvColumnIndex["TotalDescent"]], 10, 64)
+			totalAscent, _ := strconv.ParseInt(record[csvColumnIndex["TotalAscent"]], 10, 64)
+			totalDescent, _ := strconv.ParseInt(record[csvColumnIndex["TotalDescent"]], 10, 64)
 
-			minElevation, _ := strconv.ParseInt(record[CsvColumnIndex["MinElevation"]], 10, 64)
-			maxElevation, _ := strconv.ParseInt(record[CsvColumnIndex["MaxElevation"]], 10, 64)
+			minElevation, _ := strconv.ParseInt(record[csvColumnIndex["MinElevation"]], 10, 64)
+			maxElevation, _ := strconv.ParseInt(record[csvColumnIndex["MaxElevation"]], 10, 64)
 
-			numberofLaps, _ := strconv.ParseInt(record[CsvColumnIndex["NumberofLaps"]], 10, 64)
+			numberofLaps, _ := strconv.ParseInt(record[csvColumnIndex["NumberofLaps"]], 10, 64)
+
+			totalStrokes, _ := strconv.ParseInt(record[csvColumnIndex["TotalStrokes"]], 10, 64)
+			totalReps, _ := strconv.ParseInt(record[csvColumnIndex["TotalReps"]], 10, 64)
 
 			activity := activity.Activity{
 				ActivityType:    currentActivityType,
@@ -131,7 +128,9 @@ func ParseRecords(records [][]string, activitiesMap map[string]bool, args args.A
 				AvgPower:        avgPower,
 				AvgStrideLength: avgStrideLength,
 				NumberofLaps:    numberofLaps,
-				Title:           record[CsvColumnIndex["Title"]],
+				TotalStrokes:    totalStrokes,
+				TotalReps:       totalReps,
+				Title:           record[csvColumnIndex["Title"]],
 			}
 			activities = append(activities, activity)
 

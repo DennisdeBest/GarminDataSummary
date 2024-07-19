@@ -26,10 +26,10 @@ type Activity struct {
 	AvgPower               int64
 	Grit                   float64
 	Flow                   float64
-	TotalStrokes           float64
+	TotalStrokes           int64
 	AvgSwolf               float64
 	AvgStrokeRate          float64
-	TotalReps              float64
+	TotalReps              int64
 	DiveTime               float64
 	MinTemp                float64
 	SurfaceInterval        float64

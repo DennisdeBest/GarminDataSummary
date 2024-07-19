@@ -20,7 +20,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if !(inputArguments.Output == "text" || inputArguments.Output == "json") {
+	if !(inputArguments.Output == args.DefaultOutput || inputArguments.Output == "json") {
 		flag.PrintDefaults()
 		os.Exit(1)
 	}
@@ -43,9 +43,17 @@ func main() {
 	}
 	defer file.Close()
 
+	reader := csv.NewReader(file)
+
+	csvColumnIndex, err := input.GetCsvColumnIndex(reader)
+	if err != nil {
+		fmt.Println("Error getting CSV column index:", err)
+		return
+	}
+
 	if inputArguments.ShowActivities {
 		// Read the CSV input and print the distinct list of activities
-		activities, err := input.ReadActivitiesFromFile(file)
+		activities, err := input.ReadActivitiesFromFile(reader)
 		if err != nil {
 			fmt.Printf("Error reading activities from input: %v\n", err)
 			os.Exit(1)
@@ -57,7 +65,6 @@ func main() {
 		os.Exit(0)
 	}
 
-	reader := csv.NewReader(file)
 	records, err := reader.ReadAll()
 	if err != nil {
 		fmt.Println("Error reading CSV:", err)
@@ -68,7 +75,7 @@ func main() {
 		earliestDate,
 		latestDate,
 		longestActivities,
-		err := input.ParseRecords(records, inputArguments.SelectedActivities, inputArguments)
+		err := input.ParseRecords(records, inputArguments, csvColumnIndex)
 
 	if err != nil {
 		fmt.Println("Error parsing records:", err)
